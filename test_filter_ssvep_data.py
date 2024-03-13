@@ -40,7 +40,7 @@ data=import_ssvep_data.load_ssvep_data(subject,data_directory)
 low_cutoff=10
 high_cutoff=14
 filter_type='hann'
-filter_order=1000
+filter_order=2000
 fs=data['fs']
 filter_coefficients=filter_ssvep_data.make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs)
 
@@ -51,3 +51,19 @@ filter_type='hann'
 filter_order=1000
 fs=data['fs']
 filter_coefficients=filter_ssvep_data.make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs)
+
+"""
+A) How much will 12Hz oscillations be attenuated by the 15Hz filter? How much will 15Hz 
+oscillations be attenuated by the 12Hz filter?
+
+According to the frequency response plot. Each frequency will be attenuated by approximately  -27dBc
+
+B) Experiment with higher and lower order filters. Describe how changing the order changes 
+the frequency and impulse response of the filter
+
+Increasing the order of the filter improves the attenuation of the adjacent signals (e.g. 15Hz for the 12Hz Bandpass filter),
+but also incrases the lenght of the impulse response. Similarly, reducing the order of the filter decrases the attenuation of 
+adjacent frequencies, but it also reduces the length of the impulse response.
+
+
+"""
