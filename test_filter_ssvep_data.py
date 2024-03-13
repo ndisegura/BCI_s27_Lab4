@@ -37,10 +37,17 @@ data=import_ssvep_data.load_ssvep_data(subject,data_directory)
 #%% Cell2 Design a Filter
 
 #Filter out the 15Hz signals
+low_cutoff=10
+high_cutoff=14
+filter_type='hann'
+filter_order=1000
+fs=data['fs']
+filter_coefficients=filter_ssvep_data.make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs)
+
+#Filter out the 12Hz signals
 low_cutoff=13
 high_cutoff=17
 filter_type='hann'
 filter_order=1000
 fs=data['fs']
-
 filter_coefficients=filter_ssvep_data.make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs)
