@@ -43,5 +43,13 @@ def make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs):
     plt.tight_layout()
     plt.show()
     
-    return filter_coefficients 
+    return filter_coefficients
+
+def filter_data(data,b):
+    
+    eeg_data=data['eeg']
+    filtered_data=filtfilt(b, a=1, x=eeg_data,axis=1)
+    
+    
+    return filtered_data
 
