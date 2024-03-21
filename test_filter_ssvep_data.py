@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-andres Segura & Tynan Gacy
+Andres Segura & Tynan Gacy
 BME 6770: BCI's Lab 04
 Dr. David Jangraw
 3/11/2024
@@ -73,6 +73,24 @@ filtered_data_12Hz=filter_ssvep_data.filter_data(data,filter_coefficients_band_p
 
 #Filtered 15Hz signals
 filtered_data_15Hz=filter_ssvep_data.filter_data(data,filter_coefficients_band_pass_15Hz)
+
+#%% Cell 4 Calculate the Envelope
+
+channel_to_plot='Oz'
+
+# Get envelope for 12Hz
+filter_ssvep_data.get_envelope(data,filtered_data=filtered_data_12Hz,channel_to_plot=None,ssvep_frequency=None)
+
+# Get envelope for 15Hz
+filter_ssvep_data.get_envelope(data,filtered_data=filtered_data_15Hz,channel_to_plot=None,ssvep_frequency=None)
+
+#%% Cell 5 Plot amplitudes
+
+# Plot amplitudes for Oz
+
+channel_to_plot='Oz'
+
+plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject)
 
 
 
