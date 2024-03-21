@@ -2,12 +2,14 @@
 """
 Created on Mon Mar 11 18:41:31 2024
 
-@author: asegura
+@author: Andres Segura & Tynan Gacy
 """
 
 from pylab import *
 from scipy.signal import firwin, lfilter, filtfilt,freqz
 import matplotlib.pyplot as plt
+
+#%% Part 2
 
 def make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs):
     
@@ -45,6 +47,8 @@ def make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs):
     
     return filter_coefficients
 
+#%% Part 3
+
 def filter_data(data,b):
     
     eeg_data=data['eeg']
@@ -53,3 +57,23 @@ def filter_data(data,b):
     
     return filtered_data
 
+#%% Part 4
+
+def get_envelope(data,filtered_data,channel_to_plot,ssvep_frequency):
+    
+    
+    return envelope
+
+#%% Part 5
+
+def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject):
+    
+    
+    return None
+    
+#%% Part 6
+
+def plot_filtered_spectra(data,filtered_data,envelope):
+
+    
+    return None
