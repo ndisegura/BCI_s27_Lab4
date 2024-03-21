@@ -90,8 +90,11 @@ filter_ssvep_data.get_envelope(data,filtered_data=filtered_data_15Hz,channel_to_
 
 channel_to_plot='Oz'
 
-plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject)
+filter_ssvep_data.plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject)
 
+#%% Cell 6 Examine Spectra
+
+filter_ssvep_data.plot_filtered_spectra(data,filtered_data,envelope)
 
 
 
