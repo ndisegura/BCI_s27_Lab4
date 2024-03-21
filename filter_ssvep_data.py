@@ -6,10 +6,10 @@ Created on Mon Mar 11 18:41:31 2024
 """
 
 from pylab import *
-from scipy.signal import firwin, lfilter, filtfilt,freqz
+from scipy.signal import firwin, lfilter, filtfilt,freqz,hilbert
 import matplotlib.pyplot as plt
 
-def make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs):
+def make_bandpass_filter(low_cutoff,high_cutoff,filter_type='hann',filter_order=10,fs=1000):
     
     if filter_type==None: filter_type='hann'
     fNQ = fs/2                                     #Compute the Niqyst rate
@@ -52,4 +52,42 @@ def filter_data(data,b):
     
     
     return filtered_data
+
+def get_envelope(data,filtered_data,channel_to_plot=None,ssvep_frequency=None):
+    
+    #Get the channels names
+    channels=data['channels']
+    fs=data['fs']
+    
+    #Get the envelope
+    envelope=np.abs(hilbert(filtered_data,axis=1))
+    
+    #Plot the selected channels
+    if channel_to_plot is not None:
+        #Create Boolean array from channel to plot
+        is_channel=channels==channel_to_plot #Select channel to plot
+        #select the channel to plot using the boolean array
+        filtered_data_to_plot=filtered_data[is_channel]
+        envelope_data_to_plot=envelope[is_channel]
+        #setup the figure to plot
+        fig, ax = plt.subplots()
+        #plot the data and scale to micro-volts
+        ax.plot(np.squeeze(filtered_data_to_plot/10e-6),'r',label='Filtered data')
+        ax.plot(np.squeeze(envelope_data_to_plot/10e-6),'b',label='Envelope')
+        ax.set_ylabel('Voltage [uV]', color='b')
+        ax.set_xlabel('Sample Number', color='b')
+        
+        if ssvep_frequency is not None:
+            ax.set_title(f'{ssvep_frequency} BPF Data')
+        else:
+            ax.set_title(f'Unknown Frequency Isolated')
+        
+        plt.tight_layout()
+        plt.show()
+        
+            
+      
+    return envelope
+    
+    #np.abs(scipy.signal.hilbert(signal))
 
