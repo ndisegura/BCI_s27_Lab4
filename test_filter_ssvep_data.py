@@ -18,14 +18,15 @@ import import_ssvep_data
 import filter_ssvep_data
 
 #Make sure relative path work
-cwd=os.getcwd()
-sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
+#cwd=os.getcwd()
+#sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
 
 #Close previosly drawn plots
 plt.close('all')
 
 #Build data file string
-data_directory=f'{cwd}/course_software/SsvepData/'
+#data_directory=f'{cwd}/course_software/SsvepData/'
+data_directory = './SsvepData/'
 subject=1
 #data_file=f'{cwd}{data_directory}SSVEP_S{subject}.npz'
 
@@ -40,7 +41,7 @@ data=import_ssvep_data.load_ssvep_data(subject,data_directory)
 low_cutoff=10
 high_cutoff=14
 filter_type='hann'
-filter_order=1000
+filter_order=2000
 fs=data['fs']
 filter_coefficients_band_pass_12Hz=filter_ssvep_data.make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs)
 
@@ -76,25 +77,21 @@ filtered_data_15Hz=filter_ssvep_data.filter_data(data,filter_coefficients_band_p
 
 #%% Cell 4 Calculate the Envelope
 
-channel_to_plot='Oz'
-
 # Get envelope for 12Hz
-filter_ssvep_data.get_envelope(data,filtered_data=filtered_data_12Hz,channel_to_plot=None,ssvep_frequency=None)
+envelope_12Hz=filter_ssvep_data.get_envelope(data, filtered_data_12Hz[:,:],'Oz',12)
 
 # Get envelope for 15Hz
-filter_ssvep_data.get_envelope(data,filtered_data=filtered_data_15Hz,channel_to_plot=None,ssvep_frequency=None)
+envelope_15Hz=filter_ssvep_data.get_envelope(data, filtered_data_15Hz[:,:],'Oz',15)
 
 #%% Cell 5 Plot amplitudes
 
 # Plot amplitudes for Oz
 
-channel_to_plot='Oz'
-
-filter_ssvep_data.plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject)
+filter_ssvep_data.plot_ssvep_amplitudes(data,envelope_12Hz,envelope_15Hz,'Oz',12,15,subject)
 
 #%% Cell 6 Examine Spectra
 
-filter_ssvep_data.plot_filtered_spectra(data,filtered_data,envelope)
+#filter_ssvep_data.plot_filtered_spectra(data,filtered_data,envelope)
 
 
 
