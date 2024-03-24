@@ -40,7 +40,7 @@ data=import_ssvep_data.load_ssvep_data(subject,data_directory)
 low_cutoff=10
 high_cutoff=14
 filter_type='hann'
-filter_order=1000
+filter_order=2000
 fs=data['fs']
 filter_coefficients_band_pass_12Hz=filter_ssvep_data.make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs)
 
@@ -48,7 +48,7 @@ filter_coefficients_band_pass_12Hz=filter_ssvep_data.make_bandpass_filter(low_cu
 low_cutoff=13
 high_cutoff=17
 filter_type='hann'
-filter_order=1000
+filter_order=2000
 fs=data['fs']
 filter_coefficients_band_pass_15Hz=filter_ssvep_data.make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs)
 
@@ -74,6 +74,7 @@ filtered_data_12Hz=filter_ssvep_data.filter_data(data,filter_coefficients_band_p
 #Filtered 15Hz signals
 filtered_data_15Hz=filter_ssvep_data.filter_data(data,filter_coefficients_band_pass_15Hz)
 
+<<<<<<< HEAD
 #%% Cell 4 Calculate the Envelope
 
 channel_to_plot='Oz'
@@ -97,5 +98,12 @@ filter_ssvep_data.plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_pl
 filter_ssvep_data.plot_filtered_spectra(data,filtered_data,envelope)
 
 
+=======
+#%% Cell 4 Signal Envelope
+
+envelope_12Hz=filter_ssvep_data.get_envelope(data, filtered_data_12Hz[:,145000:164000],'Oz',12)
+
+envelope_15Hz=filter_ssvep_data.get_envelope(data, filtered_data_15Hz[:,145000:164000],'Oz',15)
+>>>>>>> part4_code
 
 

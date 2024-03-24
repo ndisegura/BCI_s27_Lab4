@@ -9,9 +9,13 @@ from pylab import *
 from scipy.signal import firwin, lfilter, filtfilt,freqz,hilbert
 import matplotlib.pyplot as plt
 
+<<<<<<< HEAD
 #%% Part 2
 
+def make_bandpass_filter(low_cutoff,high_cutoff,filter_type,filter_order,fs):
+=======
 def make_bandpass_filter(low_cutoff,high_cutoff,filter_type='hann',filter_order=10,fs=1000):
+>>>>>>> part4_code
     
     if filter_type==None: filter_type='hann'
     fNQ = fs/2                                     #Compute the Niqyst rate
@@ -57,7 +61,28 @@ def filter_data(data,b):
     
     return filtered_data
 
+<<<<<<< HEAD
 #%% Part 4
+
+def get_envelope(data,filtered_data,channel_to_plot,ssvep_frequency):
+    
+    
+    return envelope
+
+#%% Part 5
+
+def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject):
+    
+    
+    return None
+    
+#%% Part 6
+
+def plot_filtered_spectra(data,filtered_data,envelope):
+
+    
+    return None
+=======
 def get_envelope(data,filtered_data,channel_to_plot=None,ssvep_frequency=None):
     
     #Get the channels names
@@ -95,13 +120,5 @@ def get_envelope(data,filtered_data,channel_to_plot=None,ssvep_frequency=None):
     return envelope
     
     #np.abs(scipy.signal.hilbert(signal))
-#%% Part 5
 
-def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject):
-    
-    
-    return None
-#%% Part 6
-
-def plot_filtered_spectra(data,filtered_data,envelope):
-    return None
+>>>>>>> part4_code
