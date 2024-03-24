@@ -8,6 +8,7 @@ Created on Mon Mar 11 18:41:31 2024
 from pylab import *
 from scipy.signal import firwin, lfilter, filtfilt,freqz,hilbert
 import matplotlib.pyplot as plt
+import numpy as np
 
 #%% Part 2
 
@@ -58,6 +59,7 @@ def filter_data(data,b):
     return filtered_data
 
 #%% Part 4
+
 def get_envelope(data,filtered_data,channel_to_plot=None,ssvep_frequency=None):
     
     #Get the channels names
@@ -97,7 +99,52 @@ def get_envelope(data,filtered_data,channel_to_plot=None,ssvep_frequency=None):
     #np.abs(scipy.signal.hilbert(signal))
 #%% Part 5
 
+
 def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject):
+
+    # Pull data from directory
+    channels=data['channels']
+    fs=data['fs']
+    event_samples=data['event_samples']
+    event_durations=data['event_durations']
+    event_type=data['event_types']
+
+    # Limit to channel to plot
+    is_channel=channels==channel_to_plot #Boolean array for channel to plot
+    envelope_data_to_plot_a=envelope_a[is_channel] # Limit envelope_a to channel
+    envelope_data_to_plot_b=envelope_b[is_channel] # Limit envelope_b to channel
+    
+    # Generate x axis in time(s)
+    time_in_s=np.arange(0,len(envelope_data_to_plot_a[0])*1/fs,1/fs) # 
+    
+    # Create figure and subplots
+    fig, axs = plt.subplots(2,1,sharex=True)
+    # Plot event start and end times and types
+    for sample, duration, event_type in zip(event_samples, event_durations, event_type):
+        start_time = sample / fs
+        end_time = (sample + duration) / fs
+
+        axs[0].set_title(f'Subject {subject} SSVEP Amplitudes')
+        axs[0].set_xlabel('Time (s)')
+        axs[0].set_ylabel('Flash Frequency')
+        axs[0].grid()
+        axs[0].plot(start_time, event_type, 'bo')  # Dot at the start time
+        axs[0].plot(end_time, event_type, 'bo')    # Dot at the end time
+        axs[0].plot([start_time, end_time], [event_type, event_type], color='b', linewidth=2) # Line between start/end
+
+            
+    axs[1].set_title('Envelope Comparison')
+    axs[1].set_xlabel('Time (s)')
+    axs[1].set_ylabel('Voltage (uV')
+    axs[1].grid()
+    axs[1].plot(time_in_s,np.squeeze(envelope_data_to_plot_a/10e-6),label='12Hz Envelope')
+    axs[1].plot(time_in_s,np.squeeze(envelope_data_to_plot_b/10e-6),label='15Hz Envelope')
+
+        
+    plt.tight_layout()
+    plt.legend()
+    plt.show()
+
     
     
     return None
