@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 import import_ssvep_data
 
 #Make sure relative path work
-cwd=os.getcwd()
-sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
+#cwd=os.getcwd()
+#sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
 
 #Close previosly drawn plots
 plt.close('all')
 
 #Build data file string
-data_directory=f'{cwd}/course_software/SsvepData/'
+data_directory='./SsvepData/'
 subject=1
 #data_file=f'{cwd}{data_directory}SSVEP_S{subject}.npz'
 

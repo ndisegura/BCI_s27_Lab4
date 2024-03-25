@@ -9,6 +9,7 @@ from pylab import *
 from scipy.signal import firwin, lfilter, filtfilt,freqz,hilbert
 import matplotlib.pyplot as plt
 import numpy as np
+import import_ssvep_data
 
 #%% Part 2
 
@@ -151,4 +152,21 @@ def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_
 #%% Part 6
 
 def plot_filtered_spectra(data,filtered_data,envelope):
+    
+    
+    epoch_start_time=0
+    epoch_end_time=20
+    
+    event_samples=data['event_samples']
+    event_duration=data['event_durations']
+    event_type=data['event_types']
+    fs=data['fs']
+    
+    #Epoch raw data
+    data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_ssvep_data(data,epoch_start_time,epoch_end_time)
+    #Epoch filtered data
+    filtered_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(filtered_data,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    #epoch envelope data
+    envelope_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(envelope,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    
     return None

@@ -18,16 +18,16 @@ import import_ssvep_data
 import filter_ssvep_data
 
 #Make sure relative path work
-cwd=os.getcwd()
-sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
+#cwd=os.getcwd()
+#sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
 
 #Close previosly drawn plots
 plt.close('all')
 
 #Build data file string
-data_directory=f'{cwd}/course_software/SsvepData/'
-#data_directory = './SsvepData/'
-subject=1
+#data_directory=f'{cwd}/course_software/SsvepData/'
+data_directory = './SsvepData/'
+subject=2
 #data_file=f'{cwd}{data_directory}SSVEP_S{subject}.npz'
 
 
@@ -92,8 +92,13 @@ envelope_15Hz=filter_ssvep_data.get_envelope(data, filtered_data_15Hz[:,:],'Oz',
 
 filter_ssvep_data.plot_ssvep_amplitudes(data,envelope_12Hz,envelope_15Hz,'Oz',12,15,subject)
 
+"""
+"Need to add requested coment "
+"""
+
+
 #%% Cell 6 Examine Spectra
 
-#filter_ssvep_data.plot_filtered_spectra(data,filtered_data,envelope)
+filter_ssvep_data.plot_filtered_spectra(data,filtered_data_15Hz,envelope_15Hz)
 
 
