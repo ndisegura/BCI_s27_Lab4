@@ -151,4 +151,62 @@ def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_
 #%% Part 6
 
 def plot_filtered_spectra(data,filtered_data,envelope):
+    
+    
+    epoch_start_time=0
+    epoch_end_time=20
+    
+    event_samples=data['event_samples']
+    event_duration=data['event_durations']
+    event_type=data['event_types']
+    fs=data['fs']
+    
+    #Epoch raw data
+    data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_ssvep_data(data,epoch_start_time,epoch_end_time)
+    #Epoch filtered data
+    filtered_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(filtered_data,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    #epoch envelope data
+    envelope_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(envelope,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+
+    # Create figure and subplots
+    fig, axs = plt.subplots(2,3,sharex=True)
+    # Plot event start and end times and types
+    for sample, duration, event_type in zip(event_samples, event_duration, event_type):
+        start_time = sample / fs
+        end_time = (sample + duration) / fs
+
+        axs[0,0].set_title(f'Fz/raw')
+        axs[0,1].set_title(f'Fz/filtered')
+        axs[0,2].set_title(f'Fz/envelope')
+        axs[1,0].set_title(f'Oz/raw')
+        axs[1,1].set_title(f'Oz/filtered')
+        axs[1,2].set_title(f'Oz/envelope')
+
+        axs[0,0].set_xlabel('Time (s)')
+        axs[0,1].set_xlabel('Time (s)')
+        axs[0,2].set_xlabel('Time (s)')
+        axs[1,0].set_xlabel('Time (s)')
+        axs[1,1].set_xlabel('Time (s)')
+        axs[1,2].set_xlabel('Time (s)')
+
+        axs[0,0].set_ylabel('Flash Frequency')
+        axs[0,1].set_ylabel('Flash Frequency')
+        axs[0,2].set_ylabel('Flash Frequency')
+        axs[1,0].set_ylabel('Flash Frequency')
+        axs[1,1].set_ylabel('Flash Frequency')
+        axs[1,2].set_ylabel('Flash Frequency')        
+        
+        axs[0,0].grid()
+        axs[0,1].grid()
+        axs[0,2].grid()
+        axs[1,0].grid()
+        axs[1,1].grid()
+        axs[1,2].grid()
+        
+    plt.tight_layout()
+    plt.legend()
+    plt.show()
+
+
+    
     return None
