@@ -5,7 +5,11 @@ BME 6770: BCI's Lab 04
 Dr. David Jangraw
 3/11/2024
 
-This script intends to ...
+Test scrip for the implementation of the filter_ssvep_data module. This scrip loads the data from the data dictionary, 
+followed by the design of two bandpass FIR filters centered around 12hz and 15hz. The filter taps are then used to convolve
+it with the EEG data contained in the "data" dictionary. A Hilbert transform extracts the envelope of the oscillatory signals, then
+the envelope and the event types are ploted on a single grapth. As a final step, the power spectrum of the raw EEG , filtered and 
+envelope is ploted for the 'Oz" and 'Fz' EEG channels.
 
 
 """
