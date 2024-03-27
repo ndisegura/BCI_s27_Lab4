@@ -151,7 +151,7 @@ def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_
     return None
 #%% Part 6
 
-def plot_filtered_spectra(data,filtered_data,envelope):
+def plot_filtered_spectra(data,filtered_data,envelope,channels=['Fz','Oz']):
     
     
     epoch_start_time=0
@@ -163,10 +163,52 @@ def plot_filtered_spectra(data,filtered_data,envelope):
     fs=data['fs']
     
     #Epoch raw data
-    data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_ssvep_data(data,epoch_start_time,epoch_end_time)
+    raw_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_ssvep_data(data,epoch_start_time,epoch_end_time)
+    raw_data_epochs=raw_data_epochs[is_trial_15Hz] #Select first frequency
     #Epoch filtered data
     filtered_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(filtered_data,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    filtered_data_epochs=filtered_data_epochs[is_trial_15Hz] #Select first frequency
     #epoch envelope data
     envelope_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(envelope,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    envelope_epochs=envelope_epochs[is_trial_15Hz] #Select first frequency
+    
+    #Compute power spectrum of data_epochs
+    data_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(raw_data_epochs,fs)
+    #Compute power spectrum of filered_epochs
+    filtered_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(filtered_data_epochs,fs)
+    #Compute power spectrum of envelope_epochs
+    envelope_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(envelope_epochs,fs)
+    
+    #Compute the FFT magnitude
+    data_epochs_fft_magnitude=np.absolute(data_epochs_fft)
+    filtered_epochs_fft_magnitude=np.absolute(filtered_epochs_fft)
+    envelope_epochs_fft_magnitude=np.absolute(envelope_epochs_fft)
+    
+    #Compute the power
+    #Generate power array
+    power_array=np.zeros(data_epochs_fft_magnitude.shape)
+    power_array=2 #Array of dimension m,n,l with value=2
+    #Compute the power by squaring each element
+    data_epochs_fft_power=np.power(data_epochs_fft_magnitude,power_array)
+    filtered_epochs_fft_power=np.power(filtered_epochs_fft_magnitude,power_array)
+    envelope_epochs_fft_power=np.power(envelope_epochs_fft_magnitude,power_array)
+    
+    #Compute the mean
+    data_epochs_fft_mean=np.mean(data_epochs_fft_power, axis=0)
+    filtered_epochs_fft_mean=np.mean(filtered_epochs_fft_power, axis=0)
+    envelope_epochs_fft_mean=np.mean(envelope_epochs_fft_power, axis=0)
+    
+    #Normalize to the highest power. Use array broadcasting to handle dimensions mismatch
+    data_epochs_fft_normalized=data_epochs_fft_mean/np.max(data_epochs_fft_mean,axis=1)[:,np.newaxis]
+    filtered_epochs_fft_normalized=filtered_epochs_fft_mean/np.max(filtered_epochs_fft_mean,axis=1)[:,np.newaxis]    
+    envelope_epochs_fft_normalized=envelope_epochs_fft_mean/np.max(envelope_epochs_fft_mean,axis=1)[:,np.newaxis]
+    
+    
+    #Compute the FFT power in dB
+    data_epochs_fft_db= np.log10(data_epochs_fft_normalized)
+    filtered_epochs_fft_db= np.log10(filtered_epochs_fft_normalized)
+    envelope_epochs_fft_db= np.log10(envelope_epochs_fft_normalized)
+    
+    
     
     return None
