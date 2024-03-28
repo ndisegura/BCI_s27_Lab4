@@ -45,27 +45,31 @@ def make_bandpass_filter(low_cutoff,high_cutoff,filter_type='hann',filter_order=
     
     w, h = freqz(filter_coefficients)                      #Compute the frequency response
     
+    response_time=np.arange(0,filter_order/fs*+1,1/fs)
     
     fig, axs = plt.subplots(2)
-    axs[0].set_title('Digital filter frequency response')
-    axs[0].plot(w*fNQ/3.1416, 20 * np.log10(abs(h)), 'b')
-    axs[0].set_ylabel('Amplitude [dB]', color='b')
-    axs[0].set_xlabel('Frequency [Hz]')
-    ax2 = axs[0].twinx()
+    axs[1].set_title('Digital filter frequency response')
+    axs[1].plot(w*fNQ/3.1416, 20 * np.log10(abs(h)), 'b')
+    axs[1].set_ylabel('Amplitude [dB]', color='b')
+    axs[1].set_xlabel('Frequency [Hz]')
+    ax2 = axs[1].twinx()
     angles = np.unwrap(np.angle(h))
     ax2.plot(w*fNQ/3.1416, angles, 'g')
     ax2.set_ylabel('Angle (radians)', color='g')
     ax2.grid(True)
     ax2.axis('tight')
-    axs[1].set_title('Digital filter impulse response')
-    axs[1].plot(filter_coefficients, 'b')
-    axs[1].set_ylabel('Amplitude ', color='b')
-    axs[1].set_xlabel('Sample Number  [1/fs]')
-    axs[1].grid(True)
-    
-    
+    axs[0].set_title('Digital filter impulse response')
+    axs[0].plot(response_time,filter_coefficients, 'b')
+    axs[0].set_ylabel('Amplitude ', color='b')
+    axs[0].set_xlabel('Time [s]')
+    axs[0].grid(True)
+
     plt.tight_layout()
     plt.show()
+    #save figure to a file
+
+    plt.savefig(f"{filter_type}_filter_{low_cutoff}-{high_cutoff}Hz_order{filter_order}.")
+
     
     return filter_coefficients
 
@@ -313,8 +317,10 @@ def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz
         axs[i, 2].grid()    
 
         
-    plt.tight_layout()
+    plt.tight_layout()    
     plt.show()
+    plt.savefig()
+
 
     return None
 
