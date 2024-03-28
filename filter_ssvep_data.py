@@ -1,18 +1,39 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 11 18:41:31 2024
 
 @author: Andres Segura & Tynan Gacy
+BME 6770: BCI's Lab 04
+Dr. David Jangraw
+3/28/2024
+
+
+This module provides functions to process Steady State Visual Evoked Potential signals.
+The module generates FIR filter taps, convolves (filters) the selected data and plots the signals
+at the various stages
 """
 
 from pylab import *
-from scipy.signal import firwin, lfilter, filtfilt,freqz,hilbert
+from scipy.signal import firwin, filtfilt,freqz,hilbert
 import matplotlib.pyplot as plt
 import numpy as np
+import import_ssvep_data
 
 #%% Part 2
 
 def make_bandpass_filter(low_cutoff,high_cutoff,filter_type='hann',filter_order=10,fs=1000):
+    """
+    Generate a bandpass FIR filter.
+
+    Parameters:
+        low_cutoff (float): Lower cutoff frequency of the filter.
+        high_cutoff (float): Higher cutoff frequency of the filter.
+        filter_type (str, optional): Type of window to use in FIR filter design. Defaults to 'hann'.
+        filter_order (int, optional): Order of the FIR filter. Defaults to 10.
+        fs (int, optional): Sampling frequency in Hz. Defaults to 1000.
+
+    Returns:
+        array: Coefficients of the FIR filter.
+    """
     
     if filter_type==None: filter_type='hann'
     fNQ = fs/2                                     #Compute the Niqyst rate
@@ -51,7 +72,17 @@ def make_bandpass_filter(low_cutoff,high_cutoff,filter_type='hann',filter_order=
 #%% Part 3
 
 def filter_data(data,b):
-    
+    """
+    Filter input data using "b" FIR filter coefficients.
+    "a" filter coefficients is always 1 (FIR)
+
+    Parameters:
+        data (dict): Dictionary containing EEG data.
+        b (array): Coefficients of the FIR filter.
+
+    Returns:
+        array: Filtered EEG data.
+    """
     eeg_data=data['eeg']
     filtered_data=filtfilt(b, a=1, x=eeg_data,axis=1)
     
@@ -61,7 +92,20 @@ def filter_data(data,b):
 #%% Part 4
 
 def get_envelope(data,filtered_data,channel_to_plot=None,ssvep_frequency=None):
-    
+    """
+    Compute the envelope of the filtered EEG data. Optionally The channel to plot can be especified,
+    and the frequency of the ssvep signal can be provided
+
+    Parameters:
+        data (dict): Dictionary containing EEG data, event types, event samples, etc.
+        filtered_data (numpy array of size C x S with C as channels and S and the number of samples): 
+             Filtered EEG data.
+        channel_to_plot (str, optional): Name of the channel to plot. Defaults to None.
+        ssvep_frequency (int, optional): Frequency of the SSVEP. Defaults to None.
+
+    Returns:
+        array: Envelope of the filtered EEG data.
+    """
     #Get the channels names
     channels=data['channels']
     fs=data['fs']
@@ -101,6 +145,21 @@ def get_envelope(data,filtered_data,channel_to_plot=None,ssvep_frequency=None):
 
 
 def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_a,ssvep_freq_b,subject):
+    """
+    Plot SSVEP amplitudes.
+
+    Parameters:
+        data (dict): Dictionary containing EEG data, event types, event samples, etc.
+        envelope_a (array): Envelope of the filtered EEG data for the first frequency.
+        envelope_b (array): Envelope of the filtered EEG data for the second frequency.
+        channel_to_plot (str): Name of the channel to plot.
+        ssvep_freq_a (int): Frequency isolated of the first SSVEP.
+        ssvep_freq_b (int): Frequency isolated of the second SSVEP.
+        subject (str): Subject identifier.
+
+    Returns:
+        None
+    """
 
     # Pull data from directory
     channels=data['channels']
@@ -135,7 +194,7 @@ def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_
             
     axs[1].set_title('Envelope Comparison')
     axs[1].set_xlabel('Time (s)')
-    axs[1].set_ylabel('Voltage (uV')
+    axs[1].set_ylabel('Voltage (uV)')
     axs[1].grid()
     axs[1].plot(time_in_s,np.squeeze(envelope_data_to_plot_a/10e-6),label='12Hz Envelope')
     axs[1].plot(time_in_s,np.squeeze(envelope_data_to_plot_b/10e-6),label='15Hz Envelope')
@@ -148,7 +207,114 @@ def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_
     
     
     return None
+
 #%% Part 6
 
-def plot_filtered_spectra(data,filtered_data,envelope):
+def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz'}):
+
+    """
+    Plot filtered SSVEP spectra.
+    
+    Parameters:
+        data (dict): Dictionary containing EEG data, event samples, event durations, event types, etc.
+        filtered_data (array): Filtered EEG data.
+        envelope (array): Envelope of the filtered EEG data.
+        channels_to_plot (set): Set containing names of channels to plot. Default is {'Fz', 'Oz'}.
+        
+    Returns:
+        None
+    """
+    
+    # Pull data from directory
+    fs=data['fs']
+    event_samples=data['event_samples']
+    event_duration=data['event_durations']
+    event_type=data['event_types']
+    channels=data['channels']
+
+    channel_to_plot_list = sorted(list(channels_to_plot))
+    
+    epoch_start_time=0
+    epoch_end_time=20
+    
+    #Epoch raw data
+    raw_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_ssvep_data(data,epoch_start_time,epoch_end_time)
+    raw_data_epochs=raw_data_epochs[is_trial_15Hz] #Select first frequency
+    #Epoch filtered data
+    filtered_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(filtered_data,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    filtered_data_epochs=filtered_data_epochs[is_trial_15Hz] #Select first frequency
+    #epoch envelope data
+    envelope_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(envelope,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    envelope_epochs=envelope_epochs[is_trial_15Hz] #Select first frequency
+    
+    #Compute power spectrum of data_epochs
+    data_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(raw_data_epochs,fs)
+    #Compute power spectrum of filered_epochs
+    filtered_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(filtered_data_epochs,fs)
+    #Compute power spectrum of envelope_epochs
+    envelope_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(envelope_epochs,fs)
+    
+    #Compute the FFT magnitude
+    data_epochs_fft_magnitude=np.absolute(data_epochs_fft)
+    filtered_epochs_fft_magnitude=np.absolute(filtered_epochs_fft)
+    envelope_epochs_fft_magnitude=np.absolute(envelope_epochs_fft)
+    
+    #Compute the power
+    #Generate power array
+    power_array=np.zeros(data_epochs_fft_magnitude.shape)
+    power_array=2 #Array of dimension m,n,l with value=2
+    #Compute the power by squaring each element
+    data_epochs_fft_power=np.power(data_epochs_fft_magnitude,power_array)
+    filtered_epochs_fft_power=np.power(filtered_epochs_fft_magnitude,power_array)
+    envelope_epochs_fft_power=np.power(envelope_epochs_fft_magnitude,power_array)
+    
+    #Compute the mean
+    data_epochs_fft_mean=np.mean(data_epochs_fft_power, axis=0)
+    filtered_epochs_fft_mean=np.mean(filtered_epochs_fft_power, axis=0)
+    envelope_epochs_fft_mean=np.mean(envelope_epochs_fft_power, axis=0)
+    
+    #Normalize to the highest power. Use array broadcasting to handle dimensions mismatch
+    data_epochs_fft_normalized=data_epochs_fft_mean/np.max(data_epochs_fft_mean,axis=1)[:,np.newaxis]
+    filtered_epochs_fft_normalized=filtered_epochs_fft_mean/np.max(filtered_epochs_fft_mean,axis=1)[:,np.newaxis]    
+    envelope_epochs_fft_normalized=envelope_epochs_fft_mean/np.max(envelope_epochs_fft_mean,axis=1)[:,np.newaxis]
+    
+    
+    #Compute the FFT power in dB
+    data_epochs_fft_db= np.log10(data_epochs_fft_normalized)
+    filtered_epochs_fft_db= np.log10(filtered_epochs_fft_normalized)
+    envelope_epochs_fft_db= np.log10(envelope_epochs_fft_normalized)    
+   
+    #Set number of rows to channels
+    row_count=len(channels_to_plot)
+    
+    # Create figure and subplots
+    fig, axs = plt.subplots(row_count,3,sharex=True)
+
+    for i, channel_member in enumerate(channel_to_plot_list):
+        is_channels_to_plot=channels==channel_member
+        axs[i, 0].set_title(f'{channel_member}/raw')
+        axs[i, 1].set_title(f'{channel_member}/filtered')
+        axs[i, 2].set_title(f'{channel_member}/envelope')
+    
+        axs[i, 0].plot(fft_frequencies, np.squeeze(data_epochs_fft_db[is_channels_to_plot]))
+        axs[i, 1].plot(fft_frequencies, np.squeeze(filtered_epochs_fft_db[is_channels_to_plot]))
+        axs[i, 2].plot(fft_frequencies, np.squeeze(envelope_epochs_fft_db[is_channels_to_plot]))
+    
+        axs[i, 0].set_xlabel('Frequency (Hz)')
+        axs[i, 1].set_xlabel('Frequency (Hz)')
+        axs[i, 2].set_xlabel('Time (s)')
+    
+        axs[i, 0].set_ylabel('Power (dB)')
+        axs[i, 1].set_ylabel('Power (dB)')
+        axs[i, 2].set_ylabel('Power (dB)')
+    
+        axs[i, 0].grid()
+        axs[i, 1].grid()    
+        axs[i, 2].grid()    
+
+        
+    plt.tight_layout()
+    plt.show()
+
     return None
+

@@ -19,7 +19,7 @@ sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
 plt.close('all')
 
 #Build data file string
-data_directory=f'{cwd}/course_software/SsvepData/'
+data_directory='./SsvepData/'
 subject=1
 #data_file=f'{cwd}{data_directory}SSVEP_S{subject}.npz'
 

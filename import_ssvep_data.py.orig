@@ -196,7 +196,11 @@ def epoch_generic_data(data,epoch_start_time,epoch_end_time, event_samples,event
     #create boolean array true if 15hz flash during epoch
     is_trial_15Hz = event_type== '15hz'
 
+<<<<<<< HEAD
     return (data_epochs,epoch_time,is_trial_15Hz)
+=======
+    return (data_epochs,data_time,is_trial_15Hz)
+>>>>>>> origin/part_6_1
     
 def get_frequency_spectrum(eeg_epochs,fs):
     """
