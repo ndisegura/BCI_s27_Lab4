@@ -207,10 +207,24 @@ def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_
     
     
     return None
+
 #%% Part 6
 
 def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz'}):
 
+    """
+    Plot filtered SSVEP spectra.
+    
+    Parameters:
+        data (dict): Dictionary containing EEG data, event samples, event durations, event types, etc.
+        filtered_data (array): Filtered EEG data.
+        envelope (array): Envelope of the filtered EEG data.
+        channels_to_plot (set): Set containing names of channels to plot. Default is {'Fz', 'Oz'}.
+        
+    Returns:
+        None
+    """
+    
     # Pull data from directory
     fs=data['fs']
     event_samples=data['event_samples']
@@ -280,7 +294,6 @@ def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz
         axs[i, 1].set_title(f'{channel}/filtered')
         axs[i, 2].set_title(f'{channel}/envelope')
     
-        # Plot power spectra against frequency
         axs[i, 0].plot(fft_frequencies, np.squeeze(data_epochs_fft_db[i]))
         axs[i, 1].plot(fft_frequencies, np.squeeze(filtered_epochs_fft_db[i]))
         axs[i, 2].plot(fft_frequencies, np.squeeze(envelope_epochs_fft_db[i]))
