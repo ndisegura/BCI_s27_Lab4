@@ -5,7 +5,11 @@ BME 6770: BCI's Lab 04
 Dr. David Jangraw
 3/11/2024
 
-This script intends to ...
+Test scrip for the implementation of the filter_ssvep_data module. This scrip loads the data from the data dictionary, 
+followed by the design of two bandpass FIR filters centered around 12hz and 15hz. The filter taps are then used to convolve
+it with the EEG data contained in the "data" dictionary. A Hilbert transform extracts the envelope of the oscillatory signals, then
+the envelope and the event types are ploted on a single grapth. As a final step, the power spectrum of the raw EEG , filtered and 
+envelope is ploted for the 'Oz" and 'Fz' EEG channels.
 
 
 """
@@ -18,16 +22,16 @@ import import_ssvep_data
 import filter_ssvep_data
 
 #Make sure relative path work
-cwd=os.getcwd()
-sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
+#cwd=os.getcwd()
+#sys.path.insert(0,f"{cwd}\course_software\SsvepData\\")
 
 #Close previosly drawn plots
 plt.close('all')
 
 #Build data file string
-data_directory=f'{cwd}/course_software/SsvepData/'
-#data_directory = './SsvepData/'
-subject=1
+#data_directory=f'{cwd}/course_software/SsvepData/'
+data_directory = './SsvepData/'
+subject=2
 #data_file=f'{cwd}{data_directory}SSVEP_S{subject}.npz'
 
 
@@ -92,8 +96,24 @@ envelope_15Hz=filter_ssvep_data.get_envelope(data, filtered_data_15Hz[:,:],'Oz',
 
 filter_ssvep_data.plot_ssvep_amplitudes(data,envelope_12Hz,envelope_15Hz,'Oz',12,15,subject)
 
+"""
+What do the two envelopes do when the stimulation frequency changes? 
+How large and consistent are those changes? 
+Are the brain signals responding to the events in the way you’d expect? 
+Check some other electrodes – which electrodes respond in the same way and why?
+"""
+
+
 #%% Cell 6 Examine Spectra
 
-#filter_ssvep_data.plot_filtered_spectra(data,filtered_data,envelope)
+filter_ssvep_data.plot_filtered_spectra(data,filtered_data_15Hz,envelope_15Hz,{'Fz','Oz'})
+
+"""
+describe how the spectra change at each stage and why. Changes you should address include (but are not limited to) the following:
+1. Why does the overall shape of the spectrum change after filtering?
+2. In the filtered data on Oz, why do 15Hz trials appear to have less power than 12Hz trials at most frequencies?
+3. In the envelope on Oz, why do we no longer see any peaks at 15Hz?
+"""
+
 
 
