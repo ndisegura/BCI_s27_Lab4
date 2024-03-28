@@ -9,6 +9,7 @@ from pylab import *
 from scipy.signal import firwin, lfilter, filtfilt,freqz,hilbert
 import matplotlib.pyplot as plt
 import numpy as np
+import import_ssvep_data
 
 #%% Part 2
 
@@ -150,61 +151,96 @@ def plot_ssvep_amplitudes(data,envelope_a,envelope_b,channel_to_plot,ssvep_freq_
     return None
 #%% Part 6
 
-def plot_filtered_spectra(data,filtered_data,envelope):
-    
+def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz'}):
+
+    # Pull data from directory
+    fs=data['fs']
+    event_samples=data['event_samples']
+    event_duration=data['event_durations']
+    event_type=data['event_types']
+
+    channel_to_plot_list = sorted(list(channels_to_plot))
     
     epoch_start_time=0
     epoch_end_time=20
     
-    event_samples=data['event_samples']
-    event_duration=data['event_durations']
-    event_type=data['event_types']
-    fs=data['fs']
-    
     #Epoch raw data
-    data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_ssvep_data(data,epoch_start_time,epoch_end_time)
+    raw_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_ssvep_data(data,epoch_start_time,epoch_end_time)
+    raw_data_epochs=raw_data_epochs[is_trial_15Hz] #Select first frequency
     #Epoch filtered data
     filtered_data_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(filtered_data,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
+    filtered_data_epochs=filtered_data_epochs[is_trial_15Hz] #Select first frequency
     #epoch envelope data
     envelope_epochs,data_time,is_trial_15Hz=import_ssvep_data.epoch_generic_data(envelope,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs)
-
+    envelope_epochs=envelope_epochs[is_trial_15Hz] #Select first frequency
+    
+    #Compute power spectrum of data_epochs
+    data_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(raw_data_epochs,fs)
+    #Compute power spectrum of filered_epochs
+    filtered_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(filtered_data_epochs,fs)
+    #Compute power spectrum of envelope_epochs
+    envelope_epochs_fft,fft_frequencies =import_ssvep_data.get_frequency_spectrum(envelope_epochs,fs)
+    
+    #Compute the FFT magnitude
+    data_epochs_fft_magnitude=np.absolute(data_epochs_fft)
+    filtered_epochs_fft_magnitude=np.absolute(filtered_epochs_fft)
+    envelope_epochs_fft_magnitude=np.absolute(envelope_epochs_fft)
+    
+    #Compute the power
+    #Generate power array
+    power_array=np.zeros(data_epochs_fft_magnitude.shape)
+    power_array=2 #Array of dimension m,n,l with value=2
+    #Compute the power by squaring each element
+    data_epochs_fft_power=np.power(data_epochs_fft_magnitude,power_array)
+    filtered_epochs_fft_power=np.power(filtered_epochs_fft_magnitude,power_array)
+    envelope_epochs_fft_power=np.power(envelope_epochs_fft_magnitude,power_array)
+    
+    #Compute the mean
+    data_epochs_fft_mean=np.mean(data_epochs_fft_power, axis=0)
+    filtered_epochs_fft_mean=np.mean(filtered_epochs_fft_power, axis=0)
+    envelope_epochs_fft_mean=np.mean(envelope_epochs_fft_power, axis=0)
+    
+    #Normalize to the highest power. Use array broadcasting to handle dimensions mismatch
+    data_epochs_fft_normalized=data_epochs_fft_mean/np.max(data_epochs_fft_mean,axis=1)[:,np.newaxis]
+    filtered_epochs_fft_normalized=filtered_epochs_fft_mean/np.max(filtered_epochs_fft_mean,axis=1)[:,np.newaxis]    
+    envelope_epochs_fft_normalized=envelope_epochs_fft_mean/np.max(envelope_epochs_fft_mean,axis=1)[:,np.newaxis]
+    
+    
+    #Compute the FFT power in dB
+    data_epochs_fft_db= np.log10(data_epochs_fft_normalized)
+    filtered_epochs_fft_db= np.log10(filtered_epochs_fft_normalized)
+    envelope_epochs_fft_db= np.log10(envelope_epochs_fft_normalized)    
+   
+    #Set number of rows to channels
+    row_count=len(channels_to_plot)
+    
     # Create figure and subplots
-    fig, axs = plt.subplots(2,3,sharex=True)
-    # Plot event start and end times and types
-    for sample, duration, event_type in zip(event_samples, event_duration, event_type):
-        start_time = sample / fs
-        end_time = (sample + duration) / fs
+    fig, axs = plt.subplots(row_count,3,sharex=True)
 
-        axs[0,0].set_title(f'Fz/raw')
-        axs[0,1].set_title(f'Fz/filtered')
-        axs[0,2].set_title(f'Fz/envelope')
-        axs[1,0].set_title(f'Oz/raw')
-        axs[1,1].set_title(f'Oz/filtered')
-        axs[1,2].set_title(f'Oz/envelope')
+    for i, channel in enumerate(channel_to_plot_list):
+        axs[i, 0].set_title(f'{channel}/raw')
+        axs[i, 1].set_title(f'{channel}/filtered')
+        axs[i, 2].set_title(f'{channel}/envelope')
+    
+        # Plot power spectra against frequency
+        axs[i, 0].plot(fft_frequencies, np.squeeze(data_epochs_fft_db[i]))
+        axs[i, 1].plot(fft_frequencies, np.squeeze(filtered_epochs_fft_db[i]))
+        axs[i, 2].plot(fft_frequencies, np.squeeze(envelope_epochs_fft_db[i]))
+    
+        axs[i, 0].set_xlabel('Frequency (Hz)')
+        axs[i, 1].set_xlabel('Frequency (Hz)')
+        axs[i, 2].set_xlabel('Frequency (Hz)')
+    
+        axs[i, 0].set_ylabel('Power (dB)')
+        axs[i, 1].set_ylabel('Power (dB)')
+        axs[i, 2].set_ylabel('Power (dB)')
+    
+        axs[i, 0].grid()
+        axs[i, 1].grid()    
+        axs[i, 2].grid()    
 
-        axs[0,0].set_xlabel('Time (s)')
-        axs[0,1].set_xlabel('Time (s)')
-        axs[0,2].set_xlabel('Time (s)')
-        axs[1,0].set_xlabel('Time (s)')
-        axs[1,1].set_xlabel('Time (s)')
-        axs[1,2].set_xlabel('Time (s)')
-
-        axs[0,0].set_ylabel('Flash Frequency')
-        axs[0,1].set_ylabel('Flash Frequency')
-        axs[0,2].set_ylabel('Flash Frequency')
-        axs[1,0].set_ylabel('Flash Frequency')
-        axs[1,1].set_ylabel('Flash Frequency')
-        axs[1,2].set_ylabel('Flash Frequency')        
-        
-        axs[0,0].grid()
-        axs[0,1].grid()
-        axs[0,2].grid()
-        axs[1,0].grid()
-        axs[1,1].grid()
-        axs[1,2].grid()
         
     plt.tight_layout()
-    plt.legend()
     plt.show()
 
 
