@@ -161,6 +161,42 @@ def epoch_ssvep_data(data,epoch_start_time,epoch_end_time):
     is_trial_15Hz = event_type== '15hz'
   
     return(eeg_epochs,epoch_time,is_trial_15Hz)
+
+def epoch_generic_data(data,epoch_start_time,epoch_end_time, event_samples,event_duration,event_type,fs):
+    
+    data_time=np.arange(0,len(data[0])*1/fs,1/fs)
+    
+    channel_count=data.shape[0]
+    event_count = len(event_samples)
+    
+    
+    samples_per_second = int(1/(data_time[1]-data_time[0]))
+    seconds_per_epoch = epoch_end_time-epoch_start_time
+    samples_per_epoch = int(samples_per_second * seconds_per_epoch)
+    
+    #Compute indexes offset for start and end times other than 0 to 20 seconds
+    epoch_start_offset=int(epoch_start_time*fs)
+    epoch_end_offset=int(epoch_end_time*fs)
+    
+    #create empty epoch array
+    data_epochs = np.zeros((event_count, channel_count, samples_per_epoch))
+    
+    #loop through each event samples and build epoch array
+    for event_index, event_sample in enumerate(event_samples):
+        
+        # get eeg data_dict within the timebounds of the event
+        data_to_add = data[:,event_sample + epoch_start_offset : event_sample + epoch_end_offset]
+        
+        # add selected data into epoch
+        data_epochs[event_index,:,:] = data_to_add
+
+    #get time relative to each event 
+    epoch_time = data_time[:samples_per_epoch]
+    
+    #create boolean array true if 15hz flash during epoch
+    is_trial_15Hz = event_type== '15hz'
+
+    return (data_epochs,data_time,is_trial_15Hz)
     
 def get_frequency_spectrum(eeg_epochs,fs):
     """
