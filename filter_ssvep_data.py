@@ -319,7 +319,7 @@ def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz
         
     plt.tight_layout()    
     plt.show()
-    plt.savefig()
+    plt.savefig("stages_of_analysis")
 
 
     return None
