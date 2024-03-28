@@ -230,6 +230,7 @@ def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz
     event_samples=data['event_samples']
     event_duration=data['event_durations']
     event_type=data['event_types']
+    channels=data['channels']
 
     channel_to_plot_list = sorted(list(channels_to_plot))
     
@@ -289,14 +290,15 @@ def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz
     # Create figure and subplots
     fig, axs = plt.subplots(row_count,3,sharex=True)
 
-    for i, channel in enumerate(channel_to_plot_list):
-        axs[i, 0].set_title(f'{channel}/raw')
-        axs[i, 1].set_title(f'{channel}/filtered')
-        axs[i, 2].set_title(f'{channel}/envelope')
+    for i, channel_member in enumerate(channel_to_plot_list):
+        is_channels_to_plot=channels==channel_member
+        axs[i, 0].set_title(f'{channel_member}/raw')
+        axs[i, 1].set_title(f'{channel_member}/filtered')
+        axs[i, 2].set_title(f'{channel_member}/envelope')
     
-        axs[i, 0].plot(fft_frequencies, np.squeeze(data_epochs_fft_db[i]))
-        axs[i, 1].plot(fft_frequencies, np.squeeze(filtered_epochs_fft_db[i]))
-        axs[i, 2].plot(fft_frequencies, np.squeeze(envelope_epochs_fft_db[i]))
+        axs[i, 0].plot(fft_frequencies, np.squeeze(data_epochs_fft_db[is_channels_to_plot]))
+        axs[i, 1].plot(fft_frequencies, np.squeeze(filtered_epochs_fft_db[is_channels_to_plot]))
+        axs[i, 2].plot(fft_frequencies, np.squeeze(envelope_epochs_fft_db[is_channels_to_plot]))
     
         axs[i, 0].set_xlabel('Frequency (Hz)')
         axs[i, 1].set_xlabel('Frequency (Hz)')
@@ -314,6 +316,5 @@ def plot_filtered_spectra(data,filtered_data,envelope,channels_to_plot={'Fz','Oz
     plt.tight_layout()
     plt.show()
 
-
-    
     return None
+
